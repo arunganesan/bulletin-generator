@@ -6,6 +6,7 @@ import datetime
 import os
 import pprint
 import pickle
+import argparse
 
 DOMAIN = 'https://amma.org'
 BASE = DOMAIN + '/groups/north-america/amma-center-michigan'
@@ -13,6 +14,7 @@ EVENTS = BASE + '/events'
 NEWS = BASE = '/news'
 
 def load_event_details (event):
+    print('Downloading event: {}'.format(event['title']))
     details_html = requests.get('{}/{}'.format(DOMAIN, event['link'])).text
     soup = BeautifulSoup(details_html, 'html.parser')
     main_content = soup.find(id="main-content")
@@ -60,6 +62,7 @@ def parse_event_html (event):
 
 def load_all_events():
     # returned parsed name of event, the date, and the link for more info
+    print('Downloading list')
     events_html = requests.get(EVENTS).text
     soup = BeautifulSoup(events_html, 'html.parser')
     event_listings = soup.find_all('div', class_='view-id-group_events')
@@ -71,7 +74,6 @@ def load_all_events():
             if event is None: continue
             event['details'] = load_event_details(event)
             events.append(event)
-            break
     return events
 
 
@@ -99,17 +101,23 @@ def generate_bulletin_from_template (events):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--force', action='store_true')
+    args = parser.parse_args()
+
     CACHE = 'cache.obj'
-    if os.path.exists(CACHE):
-        events = pickle.load(open(CACHE, 'rb'))
-    else:
+    if not os.path.exists(CACHE) or args.force:
         events = load_all_events()
         ofile = open(CACHE, 'wb')
         pickle.dump(events, ofile)
         ofile.close()
+    else:
+        events = pickle.load(open(CACHE, 'rb'))
 
     # Put into the HTML template
     html = generate_bulletin_from_template(events)
+    soup = BeautifulSoup(html, 'html.parser')
+    print(soup.prettify())
 
 if __name__ == '__main__':
     main()
