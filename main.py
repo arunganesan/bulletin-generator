@@ -7,15 +7,29 @@ import os
 import pprint
 import pickle
 import argparse
+import hashlib
 
 DOMAIN = 'https://amma.org'
 BASE = DOMAIN + '/groups/north-america/amma-center-michigan'
 EVENTS = BASE + '/events'
 NEWS = BASE = '/news'
+EVENT_CUTOFF_DAYS = 30
+
+def cache_request (full_url):
+    digest = hashlib.sha256(full_url.encode('utf-8')).hexdigest()
+    cache_filename = '.cache/' + digest
+    if os.path.exists(cache_filename):
+        return pickle.load(open(cache_filename, 'rb'))
+
+    details_html = requests.get(full_url).text
+    ofile = open(cache_filename, 'wb')
+    pickle.dump(details_html, ofile)
+    ofile.close()
+    return details_html
 
 def load_event_details (event):
     print('Downloading event: {}'.format(event['title']))
-    details_html = requests.get('{}/{}'.format(DOMAIN, event['link'])).text
+    details_html = cache_request('{}/{}'.format(DOMAIN, event['link']))
     soup = BeautifulSoup(details_html, 'html.parser')
     main_content = soup.find(id="main-content")
     image = main_content.find('div', class_='field-name-field-img-opt')
@@ -63,7 +77,7 @@ def parse_event_html (event):
 def load_all_events():
     # returned parsed name of event, the date, and the link for more info
     print('Downloading list')
-    events_html = requests.get(EVENTS).text
+    events_html = cache_request(EVENTS)
     soup = BeautifulSoup(events_html, 'html.parser')
     event_listings = soup.find_all('div', class_='view-id-group_events')
     events = []
@@ -80,9 +94,18 @@ def load_all_events():
 def generate_bulletin_from_template (events):
     entry_template = open('template/entry.html', 'r').read()
     wrapper_template = open('template/wrapper.html', 'r').read()
-
+    cutoff_date = datetime.datetime.now() + datetime.timedelta(days=EVENT_CUTOFF_DAYS)
     entries_html = []
+    already_generated = {}
+
     for event in events:
+        if event['start'] > cutoff_date:
+            continue
+
+        if event['link'] in already_generated:
+            continue
+        already_generated[event['link']] = True
+
         FMT_STR = '%A %B %d %I:%M %p'
         from_datestr = event['start'].strftime(FMT_STR)
         to_datestr = event['end'].strftime(FMT_STR)
@@ -101,18 +124,11 @@ def generate_bulletin_from_template (events):
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--force', action='store_true')
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--force', action='store_true')
+    # args = parser.parse_args()
 
-    CACHE = 'cache.obj'
-    if not os.path.exists(CACHE) or args.force:
-        events = load_all_events()
-        ofile = open(CACHE, 'wb')
-        pickle.dump(events, ofile)
-        ofile.close()
-    else:
-        events = pickle.load(open(CACHE, 'rb'))
+    events = load_all_events()
 
     # Put into the HTML template
     html = generate_bulletin_from_template(events)
