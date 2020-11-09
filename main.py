@@ -74,6 +74,8 @@ def parse_event_html (event):
         'end': end_date
     }
 
+# def load_all_news():
+
 def load_all_events():
     # returned parsed name of event, the date, and the link for more info
     print('Downloading list')
@@ -134,6 +136,9 @@ def main():
     html = generate_bulletin_from_template(events)
     soup = BeautifulSoup(html, 'html.parser')
     print(soup.prettify())
+
+
+    news = load_all_news()
 
 if __name__ == '__main__':
     main()
