@@ -14,7 +14,7 @@ BASE = DOMAIN + '/groups/north-america/amma-center-michigan'
 EVENTS = BASE + '/events'
 NEWS = BASE + '/news'
 EVENT_CUTOFF_DAYS = 30
-NEWS_CUTOFF_DAYS = 180
+NEWS_CUTOFF_DAYS = 30
 
 def cache_request (full_url):
     digest = hashlib.sha256(full_url.encode('utf-8')).hexdigest()
@@ -47,26 +47,6 @@ def load_event_details (event):
         'body': body
     }
 
-# def load_news_details (event):
-#     print('Downloading news: {}'.format(event['title']))
-#     details_html = cache_request('{}/{}'.format(DOMAIN, event['link']))
-#     soup = BeautifulSoup(details_html, 'html.parser')
-#     main_content = soup.find(id="main-content")
-#     image = main_content.find('div', class_='field-name-field-img-opt')
-#     if image is not None:
-#         image = image.find('img')['src']
-#     body = main_content.find('div', class_='field-name-body')
-#     body_items = body.find_all('div', class_='field-item')
-#     body = [
-#         str(body_item)
-#         for body_item in body_items
-#     ]
-#     return {
-#         'image': image,
-#         'body': body
-#     }
-
-
 
 
 def parse_event_html (event):
@@ -80,6 +60,9 @@ def parse_event_html (event):
     link = title_section.find('a')['href']
     title = title_section.find('a').text
     summary = summary_section.text
+    if time == 'A Multi-Day Event':
+        time = '1:10am - 11:59pm'
+
     start_date = datetime.datetime.strptime(
         '{} {} 2020 {}'.format(month, day, time.split(' - ')[0]),
         '%b %d %Y %I:%M%p'
@@ -88,7 +71,6 @@ def parse_event_html (event):
         '{} {} 2020 {}'.format(month, day, time.split(' - ')[1]),
         '%b %d %Y %I:%M%p'
     )
-    # print('{} - {}: {}'.format(start_date, end_date, title))
     return {
         'link': link,
         'title': title,
@@ -159,22 +141,38 @@ def generate_bulletin_from_template (events, news):
         if event['link'] in already_generated:
             continue
         already_generated[event['link']] = True
-        FMT_STR = '%A %B %d %I:%M %p'
-        from_datestr = event['start'].strftime(FMT_STR)
-        to_datestr = event['end'].strftime(FMT_STR)
+        FMT_STR = '%A %B %d %-I:%M %p'
+
+        start_date = event['start']
+        end_date = event['end']
+        if start_date.day == end_date.day and start_date.month == end_date.month:
+            start_ampm = start_date.strftime('%p')
+            end_ampm = end_date.strftime('%p')
+            if start_ampm == end_ampm:
+                from_datestr = start_date.strftime('%A %B %d %-I:%M')
+            else:
+                from_datestr = start_date.strftime(FMT_STR)
+            to_datestr = end_date.strftime('%-I:%M %p')
+        else:
+            from_datestr = start_date.strftime(FMT_STR)
+            to_datestr = end_date.strftime(FMT_STR)
         datestr = '{} - {}'.format(from_datestr, to_datestr)
-        imagehtml = '<img src="{}" style="width:550px" />'.format(event['details']['image'])
         event_html = entry_template.replace('{{ title }}', event['title'])
         event_html = event_html.replace('{{ date }}', datestr)
+
+        if event['details']['image'] is None:
+            imagehtml = ''
+        else:
+            imagehtml = '<p style="text-align: center;"><img src="{}" style="width:550px" /></p>'.format(event['details']['image'])
         event_html = event_html.replace('{{ image }}', imagehtml)
         event_html = event_html.replace('{{ content }}', event['details']['body'][0])
         events_html.append(event_html)
     events_header = '<center><h1>Events</h1></center><br />'
 
     for news_item in news:
-        # if news_item['date'] < news_cutoff_date:
-        #     continue
-        FMT_STR = '%A %B, %d'
+        if news_item['date'] < news_cutoff_date:
+            continue
+        FMT_STR = '%A, %B %d'
         datestr = news_item['date'].strftime(FMT_STR)
         if news_item['details']['image'] is not None:
             imagehtml = '<img src="{}" style="width:550px" />'.format(news_item['details']['image'])
@@ -200,17 +198,16 @@ def generate_bulletin_from_template (events, news):
 
 
 def main():
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--force', action='store_true')
-    # args = parser.parse_args()
-
     events = load_all(EVENTS)
     news = load_all(NEWS)
 
     # Put into the HTML template
     html = generate_bulletin_from_template(events, news)
     soup = BeautifulSoup(html, 'html.parser')
-    print(soup.prettify())
+
+    ofile = open('bulletin.html', 'w')
+    ofile.write(soup.prettify())
+    ofile.close()
 
 
 if __name__ == '__main__':
