@@ -14,12 +14,12 @@ BASE = DOMAIN + '/groups/north-america/amma-center-michigan'
 EVENTS = BASE + '/events'
 NEWS = BASE + '/news'
 EVENT_CUTOFF_DAYS = 30
-NEWS_CUTOFF_DAYS = 30
+NEWS_CUTOFF_DAYS = 45
 
-def cache_request (full_url):
+def cache_request (full_url, force=False):
     digest = hashlib.sha256(full_url.encode('utf-8')).hexdigest()
     cache_filename = '.cache/' + digest
-    if os.path.exists(cache_filename):
+    if os.path.exists(cache_filename) and force is False:
         return pickle.load(open(cache_filename, 'rb'))
 
     details_html = requests.get(full_url).text
@@ -60,16 +60,20 @@ def parse_event_html (event):
     title = title_section.find('a').text
     summary = summary_section.text
     if time == 'A Multi-Day Event':
-        time = '1:10am - 11:59pm'
-
-    start_date = datetime.datetime.strptime(
-        '{} {} 2020 {}'.format(month, day, time.split(' - ')[0]),
-        '%b %d %Y %I:%M%p'
-    )
-    end_date = datetime.datetime.strptime(
-        '{} {} 2020 {}'.format(month, day, time.split(' - ')[1]),
-        '%b %d %Y %I:%M%p'
-    )
+        start_date = datetime.datetime.strptime(
+            '{} {} 2020 1:11am'.format(month, day),
+            '%b %d %Y %I:%M%p'
+        )
+        end_date = start_date + datetime.timedelta(days=30)
+    else:
+        start_date = datetime.datetime.strptime(
+            '{} {} 2020 {}'.format(month, day, time.split(' - ')[0]),
+            '%b %d %Y %I:%M%p'
+        )
+        end_date = datetime.datetime.strptime(
+            '{} {} 2020 {}'.format(month, day, time.split(' - ')[1]),
+            '%b %d %Y %I:%M%p'
+        )
     return {
         'link': link,
         'title': title,
@@ -109,9 +113,8 @@ def load_all(url):
     if url is NEWS:
         view_id_suffix = 'news'
         parse_listing_fn = parse_news_html
-        # parse_details_fn = load_news_details
 
-    soup = BeautifulSoup(cache_request(url), 'html.parser')
+    soup = BeautifulSoup(cache_request(url, force=True), 'html.parser')
     listings = soup.find_all('div', class_='view-id-group_{}'.format(view_id_suffix))
 
     parsed_listings = []
@@ -136,7 +139,7 @@ def generate_bulletin_from_template (events, news):
 
     events_table_rows = []
     for event in events:
-        if event['start'] > cutoff_date:
+        if event['end'] > cutoff_date:
             continue
         if event['link'] in already_generated:
             continue
@@ -148,7 +151,7 @@ def generate_bulletin_from_template (events, news):
             start_ampm = start_date.strftime('%p')
             end_ampm = end_date.strftime('%p')
             if start_ampm == end_ampm:
-                from_datestr = start_date.strftime('%A %B %d %-I:%M')
+                from_datestr = start_date.strftime('%a, %b %d %-I:%M')
             else:
                 from_datestr = start_date.strftime(FMT_STR)
             to_datestr = end_date.strftime('%-I:%M %p')
