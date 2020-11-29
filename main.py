@@ -48,7 +48,6 @@ def load_event_details (event):
     }
 
 
-
 def parse_event_html (event):
     sections = event.find_all(class_='field-content')
     if len(sections) < 3:
@@ -135,14 +134,14 @@ def generate_bulletin_from_template (events, news):
     news_html = []
     already_generated = {}
 
+    events_table_rows = []
     for event in events:
         if event['start'] > cutoff_date:
             continue
         if event['link'] in already_generated:
             continue
         already_generated[event['link']] = True
-        FMT_STR = '%A %B %d %-I:%M %p'
-
+        FMT_STR = '%a, %b %-d %-I:%M %p'
         start_date = event['start']
         end_date = event['end']
         if start_date.day == end_date.day and start_date.month == end_date.month:
@@ -159,7 +158,6 @@ def generate_bulletin_from_template (events, news):
         datestr = '{} - {}'.format(from_datestr, to_datestr)
         event_html = entry_template.replace('{{ title }}', event['title'])
         event_html = event_html.replace('{{ date }}', datestr)
-
         if event['details']['image'] is None:
             imagehtml = ''
         else:
@@ -167,12 +165,17 @@ def generate_bulletin_from_template (events, news):
         event_html = event_html.replace('{{ image }}', imagehtml)
         event_html = event_html.replace('{{ content }}', event['details']['body'][0])
         events_html.append(event_html)
-    events_header = '<center><h1>Events</h1></center><br />'
+        events_table_rows.append('<tr><td>{}</td><td>{}</td><td><a href="{}">Read more</a></td></tr>'.format(
+            event['title'], datestr, event['link']
+        ))
+    wrapper_template = wrapper_template.replace('{{ events_body }}', '\n'.join(events_html))
+    wrapper_template = wrapper_template.replace('{{ events_table }}', '\n'.join(events_table_rows))
 
+    news_table_rows = []
     for news_item in news:
         if news_item['date'] < news_cutoff_date:
             continue
-        FMT_STR = '%A, %B %d'
+        FMT_STR = '%a, %b %d'
         datestr = news_item['date'].strftime(FMT_STR)
         if news_item['details']['image'] is not None:
             imagehtml = '<img src="{}" style="width:550px" />'.format(news_item['details']['image'])
@@ -183,16 +186,15 @@ def generate_bulletin_from_template (events, news):
         event_html = event_html.replace('{{ image }}', imagehtml)
         event_html = event_html.replace('{{ content }}', news_item['details']['body'][0])
         news_html.append(event_html)
-    news_header = '<center><h1>News</h1></center><br />'
+        news_table_rows.append('<tr><td>{}</td><td>{}</td><td><a href="{}">Read more</a></td></tr>'.format(
+            news_item['title'], datestr, news_item['link']
+        ))
+    wrapper_template = wrapper_template.replace('{{ news_body }}', '\n'.join(news_html))
+    wrapper_template = wrapper_template.replace('{{ news_table }}', '\n'.join(news_table_rows))
+    return wrapper_template
 
 
 
-    return wrapper_template.replace('{{ body }}', '{} {} <hr /> {} {}'.format(
-        events_header,
-        '\n'.join(events_html),
-        news_header,
-        '\n'.join(news_html)
-    ))
 
 
 

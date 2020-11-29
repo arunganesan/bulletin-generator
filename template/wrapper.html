@@ -1,47 +1,92 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html
+	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
 	<title></title>
 </head>
+
 <body class="vsc-initialized" style="min-width: 100%;">
-<table align="center" bgcolor="#ffffff" border="0" cellpadding="5" cellspacing="0" class="col600" height="100%" style="border: 1px solid rgb(236, 236, 236); border-image: none; width: 650px; color: rgb(0, 0, 0); font-family: arial,helvetica,sans-serif; font-size: 18px; font-weight: normal;" width="650">
-	<tbody>
-		<tr>
-			<td class="col600" height="100%" style="padding: 10px;" width="100%"><!-- Header --><!-- Main banner -->
-			<table align="center" border="0" cellpadding="10" cellspacing="0" style="font-size:18px;" width="100%">
-				<tbody>
-					<tr>
-						<td class="Linksbiggerfont" target="new" width="100%">
-						<p style="font-family: Arial, Helvetica, sans-serif; text-align: center;">
-							<img alt="" src="https://lists.ammagroups.org/upload/107/images/MACMichigan1_20_20.png" style="width: 650px;" width="650" />
-						</p>
+	<table align="center" bgcolor="#ffffff" border="0" cellpadding="5" cellspacing="0" class="col600" height="100%"
+		style="border: 1px solid rgb(236, 236, 236); border-image: none; width: 650px; color: rgb(0, 0, 0); font-family: arial,helvetica,sans-serif; font-size: 18px; font-weight: normal;"
+		width="650">
+		<tbody>
+			<tr>
+				<td class="col600" height="100%" style="padding: 10px;" width="100%">
+					<!-- Header -->
+					<!-- Main banner -->
+					<table align="center" border="0" cellpadding="10" cellspacing="0" style="font-size:18px;"
+						width="100%">
+						<tbody>
+							<tr>
+								<td class="Linksbiggerfont" target="new" width="100%">
+									<p style="font-family: Arial, Helvetica, sans-serif; text-align: center;">
+										<img alt=""
+											src="https://lists.ammagroups.org/upload/107/images/MACMichigan1_20_20.png"
+											style="width: 650px;" width="650" />
+									</p>
 
-						<p style="text-align: center;"><span style="font-family: Georgia,serif;">Follow us on Facebook!&nbsp;<br />
-							<a href="https://www.facebook.com/ammamich/">Amma Center of Michigan</a> |
-							<a href="https://www.facebook.com/ammadetroit/">Detroit Satsang</a> |
-							<a href="https://www.facebook.com/AYUDHMichigan/">AYUDH</a></span>
-						</p>
+									<p style="text-align: center;"><span style="font-family: Georgia,serif;">Follow us
+											on Facebook!&nbsp;<br />
+											<a href="https://www.facebook.com/ammamich/">Amma Center of Michigan</a> |
+											<a href="https://www.facebook.com/ammadetroit/">Detroit Satsang</a> |
+											<a href="https://www.facebook.com/AYUDHMichigan/">AYUDH</a></span>
+									</p>
 
-						<p style="text-align: center;"><span style="font-family: Georgia,serif;">
-							Last minute changes will be announced via our WhatsApp group.
-							Tap here to stay informed: <a href='https://chat.whatsapp.com/FDX775x9VOsKD8SIJpgsPJ'>https://chat.whatsapp.com/FDX775x9VOsKD8SIJpgsPJ</a>
-						</span></p>
+									<p style="text-align: center;"><span style="font-family: Georgia,serif;">
+											Last minute changes will be announced via our WhatsApp group.
+											Tap here to stay informed: <a
+												href='https://chat.whatsapp.com/FDX775x9VOsKD8SIJpgsPJ'>https://chat.whatsapp.com/FDX775x9VOsKD8SIJpgsPJ</a>
+										</span></p>
 
-							{{ body }}
+									<center>
+										<div
+											style="font-family: Georgia,serif; font-weight: bold; width: 100%; padding: 5px; margin-bottom: 5px; margin-top: 25px; background-color: #ffc47b">
+											Upcoming Events</div>
+										<table width="600" style="width:600px">
+											{{ events_table }}
+										</table>
+										<div
+											style="font-family: Georgia,serif; font-weight: bold; width: 100%; padding: 5px; margin-top: 5px; margin-bottom:5px; background-color: #ffc47b">
+											Recent News</div>
+										<table width="600" style="width:600px">
+											{{ news_table }}
+										</table>
+									</center>
 
-						</td>
-					</tr>
-				</tbody>
-			</table>
+									<img src="https://lists.ammagroups.org/upload/107/images/divider.png" style='margin-top: 25px; margin-bottom:25px' width="600" />
 
-			<p style="text-align: center; font-size: 18px;"><span style="font-family:Georgia,serif;"><span style="color:#ffd700;"><strong>लोका: समस्ताः सुखिनो भवन्तु<br />
-			Oṁ lokāḥ samastāḥ sukhino bhavantu<br />
-			&quot;May all beings in all the worlds be peaceful and happy&quot;</strong></span></span></p>
+									<div
+										style="font-family: Georgia,serif; text-align:center; width: 100%; border-bottom: thin dotted black;  margin-bottom: 50px; margin-top: 50px; ">
+										<em>
+											<h1>Upcoming Events</h1>
+										</em></div>
+									{{ events_body }}
+									<div
+										style="font-family: Georgia,serif; text-align:center; width: 100%; border-bottom: thin dotted black; margin-bottom: 50px; margin-top: 50px; ">
+										<em>
+											<h1>Recent News</h1>
+										</em></div>
+									{{ news_body }}
+								</td>
+							</tr>
+						</tbody>
+					</table>
 
-			<p style="text-align: center; font-family: Arial, Helvetica, sans-serif; font-size: 18px;"><!-- article --></p>
-			</td>
-		</tr>
-	</tbody>
-</table>
-<!-- footer --></body>
+					<p style="text-align: center; font-size: 18px;"><span style="font-family:Georgia,serif;"><span
+								style="color:#ffd700;"><strong>लोका: समस्ताः सुखिनो भवन्तु<br />
+									Oṁ lokāḥ samastāḥ sukhino bhavantu<br />
+									&quot;May all beings in all the worlds be peaceful and
+									happy&quot;</strong></span></span></p>
+
+					<p style="text-align: center; font-family: Arial, Helvetica, sans-serif; font-size: 18px;">
+						<!-- article -->
+					</p>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<!-- footer -->
+</body>
+
 </html>
