@@ -151,7 +151,7 @@ def generate_bulletin_from_template (events, news):
             start_ampm = start_date.strftime('%p')
             end_ampm = end_date.strftime('%p')
             if start_ampm == end_ampm:
-                from_datestr = start_date.strftime('%a, %b %d %-I:%M')
+                from_datestr = start_date.strftime('%a, %b %-d %-I:%M')
             else:
                 from_datestr = start_date.strftime(FMT_STR)
             to_datestr = end_date.strftime('%-I:%M %p')
