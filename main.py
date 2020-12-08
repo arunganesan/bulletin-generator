@@ -14,7 +14,7 @@ BASE = DOMAIN + '/groups/north-america/amma-center-michigan'
 EVENTS = BASE + '/events'
 NEWS = BASE + '/news'
 EVENT_CUTOFF_DAYS = 30
-NEWS_CUTOFF_DAYS = 45
+NEWS_CUTOFF_DAYS = 30
 
 def cache_request (full_url, force=False):
     digest = hashlib.sha256(full_url.encode('utf-8')).hexdigest()
@@ -168,8 +168,8 @@ def generate_bulletin_from_template (events, news):
         event_html = event_html.replace('{{ image }}', imagehtml)
         event_html = event_html.replace('{{ content }}', event['details']['body'][0])
         events_html.append(event_html)
-        events_table_rows.append('<tr><td>{}</td><td>{}</td><td><a href="{}">Read more</a></td></tr>'.format(
-            event['title'], datestr, event['link']
+        events_table_rows.append('<tr><td>{}</td><td>{}</td><td><a href="{}/{}">Read more</a></td></tr>'.format(
+            event['title'], datestr, DOMAIN, event['link']
         ))
     wrapper_template = wrapper_template.replace('{{ events_body }}', '\n'.join(events_html))
     wrapper_template = wrapper_template.replace('{{ events_table }}', '\n'.join(events_table_rows))
