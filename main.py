@@ -189,8 +189,8 @@ def generate_bulletin_from_template (events, news):
         event_html = event_html.replace('{{ image }}', imagehtml)
         event_html = event_html.replace('{{ content }}', news_item['details']['body'][0])
         news_html.append(event_html)
-        news_table_rows.append('<tr><td>{}</td><td>{}</td><td><a href="{}">Read more</a></td></tr>'.format(
-            news_item['title'], datestr, news_item['link']
+        news_table_rows.append('<tr><td>{}</td><td>{}</td><td><a href="{}/{}">Read more</a></td></tr>'.format(
+            news_item['title'], datestr, DOMAIN, news_item['link']
         ))
     wrapper_template = wrapper_template.replace('{{ news_body }}', '\n'.join(news_html))
     wrapper_template = wrapper_template.replace('{{ news_table }}', '\n'.join(news_table_rows))
