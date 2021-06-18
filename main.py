@@ -61,17 +61,17 @@ def parse_event_html (event):
     summary = summary_section.text
     if time == 'A Multi-Day Event':
         start_date = datetime.datetime.strptime(
-            '{} {} 2020 1:11am'.format(month, day),
+            '{} {} 2021 1:11am'.format(month, day),
             '%b %d %Y %I:%M%p'
         )
-        end_date = start_date + datetime.timedelta(days=30)
+        end_date = start_date + datetime.timedelta(days=7)
     else:
         start_date = datetime.datetime.strptime(
-            '{} {} 2020 {}'.format(month, day, time.split(' - ')[0]),
+            '{} {} 2021 {}'.format(month, day, time.split(' - ')[0]),
             '%b %d %Y %I:%M%p'
         )
         end_date = datetime.datetime.strptime(
-            '{} {} 2020 {}'.format(month, day, time.split(' - ')[1]),
+            '{} {} 2021 {}'.format(month, day, time.split(' - ')[1]),
             '%b %d %Y %I:%M%p'
         )
     return {
@@ -144,14 +144,14 @@ def generate_bulletin_from_template (events, news):
         if event['link'] in already_generated:
             continue
         already_generated[event['link']] = True
-        FMT_STR = '%a, %b %-d %-I:%M %p'
+        FMT_STR = '%A, %B %-d. %-I:%M %p'
         start_date = event['start']
         end_date = event['end']
         if start_date.day == end_date.day and start_date.month == end_date.month:
             start_ampm = start_date.strftime('%p')
             end_ampm = end_date.strftime('%p')
             if start_ampm == end_ampm:
-                from_datestr = start_date.strftime('%a, %b %-d %-I:%M')
+                from_datestr = start_date.strftime('%A, %B %-d. %-I:%M')
             else:
                 from_datestr = start_date.strftime(FMT_STR)
             to_datestr = end_date.strftime('%-I:%M %p')
@@ -164,7 +164,7 @@ def generate_bulletin_from_template (events, news):
         if event['details']['image'] is None:
             imagehtml = ''
         else:
-            imagehtml = '<p style="text-align: center;"><img src="{}" style="width:550px" /></p>'.format(event['details']['image'])
+            imagehtml = '<p style="text-align: center;"><img src="{}" style="width:300px" /></p>'.format(event['details']['image'])
         event_html = event_html.replace('{{ image }}', imagehtml)
         event_html = event_html.replace('{{ content }}', event['details']['body'][0])
         events_html.append(event_html)
@@ -178,10 +178,10 @@ def generate_bulletin_from_template (events, news):
     for news_item in news:
         if news_item['date'] < news_cutoff_date:
             continue
-        FMT_STR = '%a, %b %d'
+        FMT_STR = '%A, %B %d'
         datestr = news_item['date'].strftime(FMT_STR)
         if news_item['details']['image'] is not None:
-            imagehtml = '<img src="{}" style="width:550px" />'.format(news_item['details']['image'])
+            imagehtml = '<img src="{}" style="width:300px" />'.format(news_item['details']['image'])
         else:
             imagehtml = ''
         event_html = entry_template.replace('{{ title }}', news_item['title'])
@@ -195,9 +195,6 @@ def generate_bulletin_from_template (events, news):
     wrapper_template = wrapper_template.replace('{{ news_body }}', '\n'.join(news_html))
     wrapper_template = wrapper_template.replace('{{ news_table }}', '\n'.join(news_table_rows))
     return wrapper_template
-
-
-
 
 
 
